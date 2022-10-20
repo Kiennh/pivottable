@@ -210,8 +210,7 @@
       }),
       "Col Chart": makePlotlyChart({
         type: 'bar',
-        orientation: orientation,
-        'h': 'h'
+        orientation: 'h'
       }, {
         barmode: 'group'
       }),
