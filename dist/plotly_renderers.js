@@ -1,5 +1,6 @@
 (function() {
-  var callWithJQuery;
+  var callWithJQuery,
+    indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; i < l; i++) { if (i in this && this[i] === item) return i; } return -1; };
 
   callWithJQuery = function(pivotModule) {
     if (typeof exports === "object" && typeof module === "object") {
@@ -27,7 +28,7 @@
         var colKeys, columns, d, data, datumKeys, defaults, fullAggName, groupByTitle, hAxisTitle, i, layout, result, rowKeys, rows, titleText, traceKeys;
         defaults = {
           localeStrings: {
-            vs: "vs",
+            vs: " of ",
             by: "by"
           },
           plotly: {},
@@ -49,7 +50,7 @@
           fullAggName += "(" + (pivotData.valAttrs.join(", ")) + ")";
         }
         data = traceKeys.map(function(traceKey) {
-          var datumKey, j, labels, len, trace, val, values;
+          var datumKey, extendOptions, j, labels, len, trace, val, values;
           values = [];
           labels = [];
           for (j = 0, len = datumKeys.length; j < len; j++) {
@@ -61,14 +62,15 @@
           trace = {
             name: traceKey.join('-') || fullAggName
           };
-          if (traceOptions.type === "pie") {
+          val(extendOptions = (indexOf.call(traceOptions, traceKey) >= 0) ? traceOptions[traceKey] : traceOptions);
+          if (extendOptions.type === "pie") {
             trace.values = values;
             trace.labels = labels.length > 1 ? labels : [fullAggName];
           } else {
             trace.x = transpose ? values : labels;
             trace.y = transpose ? labels : values;
           }
-          return $.extend(trace, traceOptions);
+          return $.extend(trace, extendOptions);
         });
         if (transpose) {
           hAxisTitle = pivotData.rowAttrs.join("-");
@@ -203,6 +205,13 @@
       }, true),
       "Bar Chart": makePlotlyChart({
         type: 'bar'
+      }, {
+        barmode: 'group'
+      }),
+      "Col Chart": makePlotlyChart({
+        type: 'bar',
+        orientation: orientation,
+        'h': 'h'
       }, {
         barmode: 'group'
       }),

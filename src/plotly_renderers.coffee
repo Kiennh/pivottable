@@ -12,7 +12,7 @@ callWithJQuery ($, Plotly) ->
     makePlotlyChart = (traceOptions = {}, layoutOptions = {}, transpose = false) ->
         (pivotData, opts) ->
             defaults =
-                localeStrings: {vs: "vs", by: "by"}
+                localeStrings: {vs: " of ", by: "by"}
                 plotly: {}
                 plotlyConfig: {}
 
@@ -41,13 +41,14 @@ callWithJQuery ($, Plotly) ->
                     labels.push(datumKey.join('-') || ' ')
 
                 trace = {name: traceKey.join('-') || fullAggName}
-                if traceOptions.type == "pie"
+                val extendOptions = if (traceKey in  traceOptions) then traceOptions[traceKey] else traceOptions;
+                if extendOptions.type == "pie"
                     trace.values = values
                     trace.labels = if labels.length > 1 then labels else [fullAggName]
                 else
                     trace.x = if transpose then values else labels
                     trace.y = if transpose then labels else values
-                return $.extend(trace, traceOptions)
+                return $.extend(trace, extendOptions)
 
             if transpose
                 hAxisTitle = pivotData.rowAttrs.join("-")
@@ -135,6 +136,7 @@ callWithJQuery ($, Plotly) ->
         "Horizontal Stacked Bar Chart": makePlotlyChart({type: 'bar', orientation: 'h'},
             {barmode: 'relative'}, true)
         "Bar Chart": makePlotlyChart({type: 'bar'}, {barmode: 'group'})
+        "Col Chart": makePlotlyChart({type: 'bar', orientation, 'h'}, {barmode: 'group'})
         "Stacked Bar Chart": makePlotlyChart({type: 'bar'}, {barmode: 'relative'})
         "Line Chart": makePlotlyChart()
         "Area Chart": makePlotlyChart({stackgroup: 1})
