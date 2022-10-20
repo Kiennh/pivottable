@@ -25,15 +25,20 @@
         transpose = false;
       }
       return function(pivotData, opts) {
-        var colKeys, columns, d, data, datumKeys, defaults, fullAggName, groupByTitle, hAxisTitle, i, layout, result, rowKeys, rows, titleText, traceKeys;
+        var colKeys, columns, d, data, datumKeys, defaults, extendTrace, fullAggName, groupByTitle, hAxisTitle, i, layout, result, rowKeys, rows, titleText, traceKeys;
         defaults = {
           localeStrings: {
-            vs: " of ",
+            vs: " ofX ",
             by: "by"
           },
           plotly: {},
           plotlyConfig: {}
         };
+        extendTrace = {};
+        if (indexOf.call(opts, traceOptions) >= 0) {
+          extendTrace = opts[traceOptions];
+          delete opts[traceOptions];
+        }
         opts = $.extend(true, {}, defaults, opts);
         rowKeys = pivotData.getRowKeys();
         colKeys = pivotData.getColKeys();
@@ -62,7 +67,10 @@
           trace = {
             name: traceKey.join('-') || fullAggName
           };
-          val(extendOptions = (indexOf.call(traceOptions, traceKey) >= 0) ? traceOptions[traceKey] : traceOptions);
+          extendOptions = traceOptions;
+          if (indexOf.call(extendTrace, traceKey) >= 0) {
+            extendOptions = $.extend(extendOptions, extendTrace[traceKey]);
+          }
           if (extendOptions.type === "pie") {
             trace.values = values;
             trace.labels = labels.length > 1 ? labels : [fullAggName];
@@ -205,12 +213,6 @@
       }, true),
       "Bar Chart": makePlotlyChart({
         type: 'bar'
-      }, {
-        barmode: 'group'
-      }),
-      "Col Chart": makePlotlyChart({
-        type: 'bar',
-        orientation: 'h'
       }, {
         barmode: 'group'
       }),
